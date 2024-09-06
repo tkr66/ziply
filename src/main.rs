@@ -62,10 +62,6 @@ fn doit(package: &Package) -> zip::result::ZipResult<()> {
 
     for e in &package.entries {
         let dest_path = Path::new(&e.dest);
-        zip.add_directory(
-            dest_path.parent().unwrap().to_str().unwrap(),
-            SimpleFileOptions::default(),
-        )?;
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
