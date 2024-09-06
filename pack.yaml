@@ -1,16 +1,11 @@
 packs:
-  docs:
-    filename: 20240801_documents.zip
+  test:
+    filename: test.zip
     entries:
-      - src: ./documents/financial_report.pdf
-        dest: /financial_reports/financial_report.pdf
-      - src: ./documents/meeting_minutes.docx
-        dest: /meeting_minutes/meeting_minutes.docx
+      - src: ./src/main.rs
+        dest: /src/main.rs
+      - src: ./Cargo.lock
+        dest: /Cargo.lock
+      - src: ./Cargo.toml
+        dest: /Cargo.toml
 
-  media:
-    filename: archive/20240801_media.zip
-    entries:
-      - src: ./media/photos/20240801/vacation_photo.jpg
-        dest: /media/photos/vacation_photo.jpg
-      - src: media/videos/20240801/intro_video.mp4
-        dest: /media/videos/intro_video.mp4
