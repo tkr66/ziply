@@ -1,4 +1,6 @@
+use std::fs;
 use std::io::{BufReader, Result, Write};
+
 use std::path::Path;
 use std::{collections::HashMap, fs::File};
 
@@ -68,8 +70,10 @@ fn doit(package: &Package) -> zip::result::ZipResult<()> {
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
         zip.start_file(dest_path.to_str().unwrap(), options)?;
+
         //TODO write the actual contents
-        zip.write_all(b"Hello, World!\n")?;
+        let content = fs::read(&e.src)?;
+        zip.write_all(&content)?;
     }
 
     zip.finish()?;
