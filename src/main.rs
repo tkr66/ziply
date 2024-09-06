@@ -34,7 +34,6 @@ struct Entry {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-
     let f = File::open("pack.yaml")?;
     let reader = BufReader::new(f);
     let manifest: Manifest = serde_yml::from_reader(reader).unwrap();
@@ -43,6 +42,7 @@ fn main() -> Result<()> {
         Ok(_) => println!("File written to {0}", &pack.filename),
         Err(e) => println!("Error: {e:?}"),
     }
+
     Ok(())
 }
 
@@ -57,17 +57,12 @@ where
 fn doit(package: &Package) -> zip::result::ZipResult<()> {
     let path = std::path::Path::new(&package.filename);
     let file = std::fs::File::create(path).unwrap();
-
     let mut zip = zip::ZipWriter::new(file);
-
     for e in &package.entries {
-        let dest_path = Path::new(&e.dest);
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
-        zip.start_file(dest_path.to_str().unwrap(), options)?;
-
-        //TODO write the actual contents
+        zip.start_file(&e.dest, options)?;
         let content = fs::read(&e.src)?;
         zip.write_all(&content)?;
     }
