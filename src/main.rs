@@ -48,9 +48,21 @@ fn doit(package: &Package) -> zip::result::ZipResult<()> {
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
-        zip.start_file(&e.dest, options)?;
-        let content = fs::read(&e.src)?;
-        zip.write_all(&content)?;
+        zip.add_directory_from_path(&e.dest_dir, options)?;
+        for f in &e.files {
+            match f {
+                FileMapping::Source(s) => {
+                    zip.start_file(s.as_str(), options)?;
+                    let content = fs::read(s.as_str())?;
+                    zip.write_all(&content)?;
+                }
+                FileMapping::SourceWithDestination { src, dest } => {
+                    zip.start_file(dest.as_str(), options)?;
+                    let content = fs::read(src.as_str())?;
+                    zip.write_all(&content)?;
+                }
+            }
+        }
     }
 
     zip.finish()?;
