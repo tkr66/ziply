@@ -1,3 +1,5 @@
+mod manifest;
+
 use std::fs;
 use std::io::{BufReader, Result, Write};
 
@@ -5,6 +7,7 @@ use std::path::Path;
 use std::{collections::HashMap, fs::File};
 
 use clap::Parser;
+use manifest::*;
 use serde::{Deserialize, Serialize};
 use zip::write::SimpleFileOptions;
 
@@ -13,23 +16,6 @@ use zip::write::SimpleFileOptions;
 struct Args {
     #[arg(short, long)]
     pack: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct Manifest {
-    packs: HashMap<String, Package>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct Package {
-    filename: String,
-    entries: Vec<Entry>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct Entry {
-    src: String,
-    dest: String,
 }
 
 fn main() -> Result<()> {
@@ -62,9 +48,21 @@ fn doit(package: &Package) -> zip::result::ZipResult<()> {
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
-        zip.start_file(&e.dest, options)?;
-        let content = fs::read(&e.src)?;
-        zip.write_all(&content)?;
+        zip.add_directory_from_path(&e.dest_dir, options)?;
+        for f in &e.files {
+            match f {
+                FileMapping::Source(s) => {
+                    zip.start_file(s.as_str(), options)?;
+                    let content = fs::read(s.as_str())?;
+                    zip.write_all(&content)?;
+                }
+                FileMapping::SourceWithDestination { src, dest } => {
+                    zip.start_file(dest.as_str(), options)?;
+                    let content = fs::read(src.as_str())?;
+                    zip.write_all(&content)?;
+                }
+            }
+        }
     }
 
     zip.finish()?;
