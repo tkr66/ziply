@@ -1,3 +1,5 @@
+mod manifest;
+
 use std::fs;
 use std::io::{BufReader, Result, Write};
 
@@ -5,6 +7,7 @@ use std::path::Path;
 use std::{collections::HashMap, fs::File};
 
 use clap::Parser;
+use manifest::*;
 use serde::{Deserialize, Serialize};
 use zip::write::SimpleFileOptions;
 
@@ -13,23 +16,6 @@ use zip::write::SimpleFileOptions;
 struct Args {
     #[arg(short, long)]
     pack: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct Manifest {
-    packs: HashMap<String, Package>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct Package {
-    filename: String,
-    entries: Vec<Entry>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-struct Entry {
-    src: String,
-    dest: String,
 }
 
 fn main() -> Result<()> {
