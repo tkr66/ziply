@@ -1,5 +1,6 @@
 mod command;
 mod manifest;
+mod pack;
 
 use std::fs;
 use std::io::{BufReader, Result, Write};

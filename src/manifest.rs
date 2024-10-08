@@ -6,10 +6,22 @@ pub struct Manifest {
     pub packs: HashMap<String, Package>,
 }
 
+impl Manifest {
+    pub fn new(packs: HashMap<String, Package>) -> Self {
+        Self { packs }
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Package {
     pub(crate) filename: String,
     pub entries: Vec<FilesWithDestination>,
+}
+
+impl Package {
+    pub fn new(filename: String, entries: Vec<FilesWithDestination>) -> Self {
+        Self { filename, entries }
+    }
 }
 
 #[derive(Deserialize, Debug)]
