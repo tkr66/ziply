@@ -1,3 +1,4 @@
+mod command;
 mod manifest;
 
 use std::fs;
@@ -7,6 +8,7 @@ use std::path::Path;
 use std::{collections::HashMap, fs::File};
 
 use clap::Parser;
+use command::Cli;
 use manifest::*;
 use serde::{Deserialize, Serialize};
 use zip::write::SimpleFileOptions;
@@ -19,14 +21,23 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    let args = Args::parse();
-    let f = File::open("pack.yaml")?;
-    let reader = BufReader::new(f);
-    let manifest: Manifest = serde_yml::from_reader(reader).unwrap();
-    let pack = manifest.packs.get(&args.pack).unwrap();
-    match doit(pack) {
-        Ok(_) => println!("File written to {0}", &pack.filename),
-        Err(e) => println!("Error: {e:?}"),
+    let cli = Cli::parse();
+    if let Some(command) = cli.command {
+        match command {
+            command::Command::Check { pack } => todo!("implement check"),
+            command::Command::Run { pack } => {
+                let f = File::open("pack.yaml")?;
+                let reader = BufReader::new(f);
+                let manifest: Manifest = serde_yml::from_reader(reader).unwrap();
+                let pack = manifest.packs.get(pack.unwrap().as_str()).unwrap();
+                match doit(pack) {
+                    Ok(_) => println!("File written to {0}", &pack.filename),
+                    Err(e) => println!("Error: {e:?}"),
+                }
+            }
+        }
+    } else {
+        todo!("print help");
     }
 
     Ok(())
