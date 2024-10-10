@@ -1,9 +1,11 @@
 use std::{
     collections::HashMap,
-    fs::{File, FileType},
-    io::{self, BufReader, Error, ErrorKind},
+    fs::{self, File, FileType},
+    io::{self, BufReader, Error, ErrorKind, Write},
     path::Path,
 };
+
+use zip::write::SimpleFileOptions;
 
 use crate::{FileMapping, FilesWithDestination, Manifest, Package};
 
@@ -45,12 +47,49 @@ pub fn check_all(manifest: &Manifest) -> Result<(), Error> {
     Ok(())
 }
 
-fn run(file: &str, pack: &str) {
-    unimplemented!();
+pub fn run(manifest: &Manifest, name: &str) -> Result<(), Error> {
+    let package = manifest
+        .packs
+        .get(name)
+        .expect("The specified pack does not exist");
+    let path = std::path::Path::new(&package.filename);
+    let file = std::fs::File::create(path).unwrap();
+    let mut zip = zip::ZipWriter::new(file);
+    for e in &package.entries {
+        let dir_option = SimpleFileOptions::default()
+            .compression_method(zip::CompressionMethod::Stored)
+            .unix_permissions(0o755);
+        let file_option = SimpleFileOptions::default()
+            .compression_method(zip::CompressionMethod::Stored)
+            .unix_permissions(0o644);
+        zip.add_directory_from_path(&e.dest_dir, dir_option)?;
+        for f in &e.files {
+            match f {
+                FileMapping::Source(s) => {
+                    zip.start_file(s.as_str(), file_option)?;
+                    let content = fs::read(s.as_str())?;
+                    zip.write_all(&content)?;
+                }
+                FileMapping::SourceWithDestination { src, dest } => {
+                    zip.start_file(dest.as_str(), file_option)?;
+                    let content = fs::read(src.as_str())?;
+                    zip.write_all(&content)?;
+                }
+            }
+        }
+    }
+
+    zip.finish()?;
+
+    Ok(())
 }
 
-pub fn run_all(file: &str) {
-    unimplemented!();
+pub fn run_all(manifest: &Manifest) -> Result<(), Error> {
+    for k in manifest.packs.keys() {
+        run(manifest, k)?;
+    }
+
+    Ok(())
 }
 
 #[test]
