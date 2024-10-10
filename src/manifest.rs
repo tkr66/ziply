@@ -1,5 +1,10 @@
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{BufReader, Error},
+    path::Path,
+};
 
 #[derive(Deserialize, Debug)]
 pub struct Manifest {
@@ -35,6 +40,14 @@ pub struct FilesWithDestination {
 pub enum FileMapping {
     Source(String),
     SourceWithDestination { src: String, dest: String },
+}
+
+pub fn read(path: &Path) -> Result<Manifest, Error> {
+    let f = File::open(path)?;
+    let reader = BufReader::new(f);
+    let m = serde_yml::from_reader(reader).unwrap();
+
+    Ok(m)
 }
 
 #[test]
