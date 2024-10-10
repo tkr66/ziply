@@ -1,7 +1,19 @@
 Ziply makes specifying directories inside a ZIP simple.
 
+# Installation
+
+```sh
+cargo install ziply
+```
+
+## Quick Start
+
+1. Define your ZIP files with a `pack.yaml`.
+3. Run `ziply run`.
 
 ## Configuration
+
+Here is an example of a pack.yaml file:
 
 ```yaml
 packs:
