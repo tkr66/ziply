@@ -7,7 +7,7 @@ use std::{
 
 use crate::{FileMapping, FilesWithDestination, Manifest, Package};
 
-pub fn check(manifest: Manifest, name: &str) -> Result<(), Error> {
+pub fn check(manifest: &Manifest, name: &str) -> Result<(), Error> {
     let pack = manifest.packs.get(name).expect("key not found");
     if let Some(parent) = Path::parent(Path::new(pack.filename.as_str())) {
         if parent.to_str().unwrap() != "" && !parent.exists() {
@@ -33,11 +33,16 @@ pub fn check(manifest: Manifest, name: &str) -> Result<(), Error> {
             }
         }
     }
-    unimplemented!();
+
+    Ok(())
 }
 
-pub fn check_all(file: &str) -> bool {
-    unimplemented!();
+pub fn check_all(manifest: &Manifest) -> Result<(), Error> {
+    for k in manifest.packs.keys() {
+        check(manifest, k.as_str())?;
+    }
+
+    Ok(())
 }
 
 fn run(file: &str, pack: &str) {
@@ -55,7 +60,7 @@ fn check_not_found_output_dir() {
     let package = Package::new("/dir/not/found/test.zip".to_string(), Vec::new());
     map.insert(name.clone(), package);
     let manifest = Manifest::new(map);
-    assert!(check(manifest, name.as_str()).is_err_and(|e| e.kind() == ErrorKind::NotFound));
+    assert!(check(&manifest, name.as_str()).is_err_and(|e| e.kind() == ErrorKind::NotFound));
 }
 
 #[test]
@@ -71,5 +76,5 @@ fn check_not_found_source() {
     );
     map.insert(name.clone(), package);
     let manifest = Manifest::new(map);
-    assert!(check(manifest, name.as_str()).is_err_and(|e| e.kind() == ErrorKind::NotFound));
+    assert!(check(&manifest, name.as_str()).is_err_and(|e| e.kind() == ErrorKind::NotFound));
 }
