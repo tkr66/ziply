@@ -2,7 +2,7 @@ use std::{
     collections::HashMap,
     fs::{self, File, FileType},
     io::{self, BufReader, Error, ErrorKind, Write},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use zip::write::SimpleFileOptions;
@@ -62,16 +62,27 @@ pub fn run(manifest: &Manifest, name: &str) -> Result<(), Error> {
         let file_option = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o644);
-        zip.add_directory_from_path(&e.dest_dir, dir_option)?;
+        let root_in_zip = PathBuf::from(&e.dest_dir);
+        zip.add_directory_from_path(&root_in_zip, dir_option)?;
         for f in &e.files {
             match f {
                 FileMapping::Source(s) => {
-                    zip.start_file(s.as_str(), file_option)?;
+                    let filename = Path::new(s)
+                        .file_name()
+                        .expect("The filename must not be null");
+                    let file_in_zip = root_in_zip.join(filename);
+                    let valid_path = file_in_zip.to_str().expect("Invalid utf8 string");
+                    zip.start_file(valid_path, file_option)?;
                     let content = fs::read(s.as_str())?;
                     zip.write_all(&content)?;
                 }
                 FileMapping::SourceWithDestination { src, dest } => {
-                    zip.start_file(dest.as_str(), file_option)?;
+                    let filename = Path::new(dest)
+                        .file_name()
+                        .expect("The filename must not be null");
+                    let file_in_zip = root_in_zip.join(filename);
+                    let valid_path = file_in_zip.to_str().expect("Invalid utf8 string");
+                    zip.start_file(valid_path, file_option)?;
                     let content = fs::read(src.as_str())?;
                     zip.write_all(&content)?;
                 }
