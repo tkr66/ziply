@@ -43,7 +43,7 @@ pub enum FileMapping {
 }
 
 pub fn read(path: &Path) -> Result<Manifest, Error> {
-    let f = File::open(path)?;
+    let f = File::open(path).expect("path for ziply.yaml shoud be set with -f option");
     let reader = BufReader::new(f);
     let m = serde_yml::from_reader(reader).unwrap();
 
