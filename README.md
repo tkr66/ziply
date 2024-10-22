@@ -8,12 +8,12 @@ cargo install ziply
 
 ## Quick Start
 
-1. Define your ZIP files with a `pack.yaml`.
+1. Define your ZIP files with a `ziply.yaml`.
 3. Run `ziply run`.
 
 ## Configuration
 
-Here is an example of a pack.yaml file:
+Here is an example of a ziply.yaml file:
 
 ```yaml
 packs:
