@@ -39,10 +39,10 @@ fn implicit_file() {
 #[test]
 fn explicit_file() {
     let x = Cli {
-        file: Some("/path/to/pack.yaml".into()),
         command: None,
+        file: Some("ziply.yaml".into()),
     };
-    let y = Cli::try_parse_from(["test", "-f", "/path/to/pack.yaml"]).unwrap();
+    let y = Cli::try_parse_from(["test", "-f", "ziply.yaml", "check"]).unwrap();
     assert_eq!(x, y);
 }
 

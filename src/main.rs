@@ -16,24 +16,24 @@ fn main() -> Result<()> {
         match command {
             command::Command::Check { pack } => match pack {
                 Some(p) => {
-                    let file = cli.file.unwrap_or(PathBuf::from("pack.yaml"));
+                    let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
                     let m = manifest::read(&file)?;
                     pack::check(&m, &p)?;
                 }
                 None => {
-                    let file = cli.file.unwrap_or(PathBuf::from("pack.yaml"));
+                    let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
                     let m = manifest::read(&file)?;
                     pack::check_all(&m)?;
                 }
             },
             command::Command::Run { pack } => match pack {
                 Some(p) => {
-                    let file = cli.file.unwrap_or(PathBuf::from("pack.yaml"));
+                    let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
                     let m = manifest::read(&file)?;
                     pack::run(&m, &p)?
                 }
                 None => {
-                    let file = cli.file.unwrap_or(PathBuf::from("pack.yaml"));
+                    let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
                     let m = manifest::read(&file)?;
                     pack::run_all(&m)?
                 }
