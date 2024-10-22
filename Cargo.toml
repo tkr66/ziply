@@ -1,6 +1,6 @@
 [package]
 name = "ziply"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A simple tool to easily specify directories inside ZIP files using YAML configuration."
 homepage = "https://github.com/tktk4/ziply"
