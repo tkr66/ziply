@@ -1,7 +1,7 @@
 packs:
   test:
     # Specifies the output path for the generated ZIP file.
-    filename: path/to/output/test.zip
+    filename: test.zip
 
     # Lists the entries that will be included in the ZIP archive.
     entries:
@@ -18,7 +18,7 @@ packs:
             dest: renamed_main.rs
 
   test2:
-    filename: path/to/output/test2.zip
+    filename: test2.zip
     entries:
       - dest_dir: foo
         files:
