@@ -8,13 +8,13 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use command::Cli;
-use manifest::*;
+use command::Command;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
     if let Some(command) = cli.command {
         match command {
-            command::Command::Check { pack } => match pack {
+            Command::Check { pack } => match pack {
                 Some(p) => {
                     let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
                     let m = manifest::read(&file)?;
@@ -26,7 +26,7 @@ fn main() -> Result<()> {
                     pack::check_all(&m)?;
                 }
             },
-            command::Command::Run { pack } => match pack {
+            Command::Run { pack } => match pack {
                 Some(p) => {
                     let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
                     let m = manifest::read(&file)?;

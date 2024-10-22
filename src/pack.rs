@@ -1,13 +1,12 @@
 use std::{
-    collections::HashMap,
-    fs::{self, File, FileType},
-    io::{self, BufReader, Error, ErrorKind, Write},
+    fs::{self},
+    io::{Error, ErrorKind, Write},
     path::{Path, PathBuf},
 };
 
 use zip::write::SimpleFileOptions;
 
-use crate::{FileMapping, FilesWithDestination, Manifest, Package};
+use super::manifest::{FileMapping, Manifest};
 
 pub fn check(manifest: &Manifest, name: &str) -> Result<(), Error> {
     let pack = manifest.packs.get(name).expect("key not found");
@@ -22,12 +21,12 @@ pub fn check(manifest: &Manifest, name: &str) -> Result<(), Error> {
     for entry in &pack.entries {
         for file in &entry.files {
             match file {
-                crate::FileMapping::Source(src) => {
+                FileMapping::Source(src) => {
                     if !Path::new(src).exists() {
                         return Err(Error::new(ErrorKind::NotFound, "The source does not exist"));
                     }
                 }
-                crate::FileMapping::SourceWithDestination { src, .. } => {
+                FileMapping::SourceWithDestination { src, .. } => {
                     if !Path::new(src).exists() {
                         return Err(Error::new(ErrorKind::NotFound, "The source does not exist"));
                     }
@@ -103,28 +102,35 @@ pub fn run_all(manifest: &Manifest) -> Result<(), Error> {
     Ok(())
 }
 
-#[test]
-fn check_not_found_output_dir() {
-    let name = String::from("test");
-    let mut map: HashMap<String, Package> = HashMap::new();
-    let package = Package::new("/dir/not/found/test.zip".to_string(), Vec::new());
-    map.insert(name.clone(), package);
-    let manifest = Manifest::new(map);
-    assert!(check(&manifest, name.as_str()).is_err_and(|e| e.kind() == ErrorKind::NotFound));
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::manifest::*;
+    use std::collections::HashMap;
 
-#[test]
-fn check_not_found_source() {
-    let name = String::from("test");
-    let mut map: HashMap<String, Package> = HashMap::new();
-    let package = Package::new(
-        "test.zip".to_string(),
-        vec![FilesWithDestination {
-            dest_dir: "".to_string(),
-            files: vec![FileMapping::Source("src/not/found".to_string())],
-        }],
-    );
-    map.insert(name.clone(), package);
-    let manifest = Manifest::new(map);
-    assert!(check(&manifest, name.as_str()).is_err_and(|e| e.kind() == ErrorKind::NotFound));
+    #[test]
+    fn check_not_found_output_dir() {
+        let name = String::from("test");
+        let mut map: HashMap<String, Package> = HashMap::new();
+        let package = Package::new("/dir/not/found/test.zip".to_string(), Vec::new());
+        map.insert(name.clone(), package);
+        let manifest = Manifest::new(map);
+        assert!(check(&manifest, name.as_str()).is_err_and(|e| e.kind() == ErrorKind::NotFound));
+    }
+
+    #[test]
+    fn check_not_found_source() {
+        let name = String::from("test");
+        let mut map: HashMap<String, Package> = HashMap::new();
+        let package = Package::new(
+            "test.zip".to_string(),
+            vec![FilesWithDestination {
+                dest_dir: "".to_string(),
+                files: vec![FileMapping::Source("src/not/found".to_string())],
+            }],
+        );
+        map.insert(name.clone(), package);
+        let manifest = Manifest::new(map);
+        assert!(check(&manifest, name.as_str()).is_err_and(|e| e.kind() == ErrorKind::NotFound));
+    }
 }
