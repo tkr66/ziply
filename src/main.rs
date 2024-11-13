@@ -4,7 +4,7 @@ mod pack;
 
 use std::io::Result;
 
-use std::path::PathBuf;
+use std::path::Path;
 
 use clap::Parser;
 use command::Cli;
@@ -12,30 +12,18 @@ use command::Command;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
+    let manifest = match cli.file {
+        Some(f) => manifest::read(&f)?,
+        None => manifest::read(Path::new("ziply.yaml"))?,
+    };
     match cli.command {
         Command::Check { pack } => match pack {
-            Some(p) => {
-                let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
-                let m = manifest::read(&file)?;
-                pack::check(&m, &p)?;
-            }
-            None => {
-                let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
-                let m = manifest::read(&file)?;
-                pack::check_all(&m)?;
-            }
+            Some(p) => pack::check(&manifest, &p)?,
+            None => pack::check_all(&manifest)?,
         },
         Command::Run { pack } => match pack {
-            Some(p) => {
-                let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
-                let m = manifest::read(&file)?;
-                pack::run(&m, &p)?
-            }
-            None => {
-                let file = cli.file.unwrap_or(PathBuf::from("ziply.yaml"));
-                let m = manifest::read(&file)?;
-                pack::run_all(&m)?
-            }
+            Some(p) => pack::run(&manifest, &p)?,
+            None => pack::run_all(&manifest)?,
         },
     }
 

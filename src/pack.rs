@@ -55,14 +55,10 @@ pub fn run(manifest: &Manifest, name: &str) -> Result<(), Error> {
     let file = std::fs::File::create(path).unwrap();
     let mut zip = zip::ZipWriter::new(file);
     for e in &package.entries {
-        let dir_option = SimpleFileOptions::default()
-            .compression_method(zip::CompressionMethod::Stored)
-            .unix_permissions(0o755);
         let file_option = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o644);
         let root_in_zip = PathBuf::from(&e.dest_dir);
-        zip.add_directory_from_path(&root_in_zip, dir_option)?;
         for f in &e.files {
             match f {
                 FileMapping::Source(s) => {
